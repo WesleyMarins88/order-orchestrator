@@ -1,0 +1,32 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model Order {
+  id              Int      @id @default(autoincrement())
+  externalId      String   @unique @map("external_id")
+  idempotencyKey  String   @unique @map("idempotency_key")
+  status          OrderStatus @default(RECEIVED)
+  customerEmail   String   @map("customer_email")
+  customerName    String   @map("customer_name")
+  currency        String
+  items           Json
+  exchangeData    Json?    @map("exchange_data")
+  errorMessage    String?  @map("error_message") @db.Text
+  createdAt       DateTime @default(now()) @map("created_at")
+  updatedAt       DateTime @updatedAt @map("updated_at")
+
+  @@map("orders")
+}
+
+enum OrderStatus {
+  RECEIVED
+  PROCESSING
+  ENRICHED
+  FAILED_ENRICHMENT
+}
